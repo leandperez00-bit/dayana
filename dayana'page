@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#fffaf7" />
+  <meta name="description" content="Un pequeño mundo hecho con amor para Dayana." />
+  <title>Para Dayana · Nuestro mundito</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Sacramento&display=swap');
+    :root {
+      --cream: #fffaf4;
+      --paper: #fffdfb;
+      --blush: #f8dfe6;
+      --rose: #e993a9;
+      --rose-deep: #9a4d67;
+      --ink: #4d4351;
+      --muted: #756772;
+      --sky: #dff1f5;
+      --sky-deep: #5f929e;
+      --butter: #fff1bb;
+      --line: rgba(183,95,121,.18);
+      --shadow: 0 22px 60px rgba(107, 74, 91, .12);
+      --shadow-soft: 0 10px 28px rgba(107, 74, 91, .08);
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+      --script: 'Sacramento', cursive;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+    body.locked { overflow: hidden; }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    ::selection { background: var(--blush); color: var(--rose-deep); }
+
+    .sky-dots, .sky-dots::before, .sky-dots::after {
+      position: fixed; inset: 0; pointer-events: none; z-index: -1; content: '';
+    }
+    .sky-dots { opacity: .5; background-image: radial-gradient(circle, rgba(233,147,169,.32) 1px, transparent 1.5px); background-size: 42px 42px; }
+    .sky-dots::before { background-image: radial-gradient(circle, rgba(126,185,198,.18) 1px, transparent 1px); background-size: 77px 77px; transform: translate(21px, 15px); }
+    .sky-dots::after { background: radial-gradient(ellipse at 10% 0%, rgba(255,241,187,.34), transparent 32%), radial-gradient(ellipse at 100% 15%, rgba(223,241,245,.62), transparent 32%); }
+
+    .prelude {
+      position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 24px;
+      background: linear-gradient(145deg, #fffaf5 0%, #fae8ee 50%, #e7f6f7 100%);
+      transition: opacity .8s ease, visibility .8s ease, transform .8s ease;
+      overflow: hidden;
+    }
+    .prelude.is-gone { opacity: 0; visibility: hidden; transform: scale(1.05); pointer-events: none; }
+    .prelude-inner { width: min(650px, 100%); text-align: center; position: relative; }
+    .prelude-kicker, .eyebrow { color: var(--rose-deep); text-transform: uppercase; letter-spacing: .18em; font-size: .71rem; font-weight: 700; }
+    .prelude h1 { font: 600 clamp(2.8rem, 8vw, 5.5rem)/.92 var(--serif); margin: 18px 0 22px; color: #5d4654; }
+    .prelude-copy { font: 1.3rem/1.6 var(--script); max-width: 540px; margin: 0 auto 26px; color: #775e6c; }
+    .enter-button, .primary-button {
+      border: 0; border-radius: 999px; padding: 15px 24px; background: var(--rose-deep); color: #fff; font-weight: 700; letter-spacing: .01em;
+      box-shadow: 0 10px 22px rgba(183,95,121,.24); transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+    }
+    .enter-button:hover, .primary-button:hover { transform: translateY(-3px); box-shadow: 0 15px 28px rgba(183,95,121,.3); background: #a8506b; }
+    .enter-button:focus-visible, .primary-button:focus-visible, .ghost-button:focus-visible, .icon-button:focus-visible, .nav-link:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid rgba(126,185,198,.7); outline-offset: 3px; }
+    .tiny-note { color: var(--muted); font-size: .75rem; margin-top: 14px; }
+
+    .character-stage { height: 188px; position: relative; margin: 4px auto 10px; }
+    .dog-art { position: absolute; left: 50%; transform: translateX(-50%); width: 176px; height: 152px; }
+    .dog-head { position: absolute; width: 102px; height: 86px; left: 37px; top: 21px; background: #fff; border: 3px solid #403b43; border-radius: 49% 49% 48% 48%; transform: rotate(-5deg); }
+    .dog-ear { position: absolute; width: 31px; height: 74px; background: #33323a; border-radius: 50% 50% 46% 46%; top: 16px; left: 19px; transform: rotate(24deg); z-index: 2; }
+    .dog-ear.right { left: 119px; top: 25px; transform: rotate(-30deg); width: 27px; height: 60px; }
+    .dog-eye { position: absolute; width: 6px; height: 6px; background: #33323a; border-radius: 50%; top: 37px; left: 69px; z-index: 3; }
+    .dog-eye.right { left: 101px; }
+    .dog-nose { position: absolute; width: 13px; height: 9px; border-radius: 60% 40% 50% 50%; background: #33323a; top: 53px; left: 87px; z-index: 3; }
+    .dog-smile { position: absolute; width: 19px; height: 9px; border-bottom: 2px solid #33323a; border-radius: 0 0 50% 50%; top: 63px; left: 80px; z-index: 3; }
+    .dog-body { position: absolute; width: 68px; height: 57px; left: 55px; top: 91px; background: #fff; border: 3px solid #403b43; border-radius: 48% 48% 26% 26%; }
+    .dog-foot { position: absolute; width: 31px; height: 11px; border: 3px solid #403b43; border-top: 0; border-radius: 0 0 20px 20px; top: 140px; left: 48px; background: #fff; }
+    .dog-foot.r { left: 95px; }
+    .dog-arm { position: absolute; width: 42px; height: 12px; border: 3px solid #403b43; border-top: 0; border-radius: 0 0 20px 20px; transform: rotate(33deg); left: 37px; top: 98px; background: #fff; z-index: 3; }
+    .dog-arm.r { transform: rotate(-33deg); left: 98px; }
+    .heart { color: var(--rose); font-size: 2.6rem; line-height: 1; display: inline-block; animation: heartbeat 1.8s ease-in-out infinite; }
+    .dog-heart { position: absolute; z-index: 4; left: 72px; top: 84px; font-size: 2.1rem; text-shadow: 0 3px 0 #fff; }
+    .bird-art { position: relative; width: 86px; height: 74px; }
+    .bird-body { position: absolute; left: 22px; top: 21px; width: 43px; height: 36px; border: 2px solid #836a2a; border-radius: 55% 45% 48% 45%; background: #ffd56d; }
+    .bird-head { position: absolute; left: 12px; top: 14px; width: 30px; height: 27px; background: #ffd56d; border: 2px solid #836a2a; border-radius: 55%; }
+    .bird-eye { position: absolute; left: 29px; top: 24px; width: 4px; height: 4px; border-radius: 50%; background: #4d4351; z-index: 2; }
+    .bird-beak { position: absolute; left: 8px; top: 27px; border: 5px solid transparent; border-right-color: #db9b39; transform: rotate(11deg); }
+    .bird-wing { position: absolute; left: 43px; top: 27px; width: 18px; height: 16px; border-radius: 50%; background: #f0b94e; transform: rotate(20deg); }
+    .bird-feet { position: absolute; left: 35px; top: 56px; width: 24px; height: 8px; border-top: 2px solid #836a2a; border-radius: 50%; }
+    .prelude .bird-art { position: absolute; right: calc(50% - 126px); bottom: 6px; transform: rotate(6deg); }
+    .sparkles { position: absolute; inset: 0; pointer-events: none; }
+    .sparkles span { position: absolute; color: #fff; text-shadow: 0 0 12px #fff, 0 0 20px var(--rose); animation: twinkle 2.2s ease-in-out infinite; }
+    .sparkles span:nth-child(1) { top: 8%; left: 12%; font-size: 1.1rem; }
+    .sparkles span:nth-child(2) { top: 22%; right: 14%; font-size: 1.5rem; animation-delay: .6s; }
+    .sparkles span:nth-child(3) { bottom: 18%; left: 22%; font-size: .9rem; animation-delay: 1.2s; }
+    .sparkles span:nth-child(4) { bottom: 8%; right: 25%; font-size: 1rem; animation-delay: 1.8s; }
+
+    .site-header { position: sticky; top: 0; z-index: 20; padding: 15px 18px; background: rgba(255,250,244,.78); backdrop-filter: blur(18px); border-bottom: 1px solid rgba(183,95,121,.09); }
+    .header-inner { width: min(1180px, 100%); margin: 0 auto; display: flex; align-items: center; gap: 20px; justify-content: space-between; }
+    .brand { text-decoration: none; display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .02em; }
+    .brand-mark { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--blush); color: var(--rose-deep); font-size: 1.2rem; }
+    .brand small { display: block; color: var(--muted); font-weight: 500; font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; }
+    .nav { display: flex; align-items: center; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav-link { white-space: nowrap; border: 0; background: transparent; color: var(--muted); border-radius: 999px; padding: 9px 11px; font-size: .75rem; transition: .2s ease; }
+    .nav-link:hover { color: var(--rose-deep); background: rgba(248,223,230,.65); }
+    .music-control { display: flex; gap: 4px; align-items: center; }
+    .icon-button { border: 1px solid var(--line); width: 39px; height: 39px; display: grid; place-items: center; border-radius: 50%; background: rgba(255,255,255,.7); color: var(--rose-deep); transition: transform .2s ease, background .2s ease; }
+    .icon-button:hover { transform: translateY(-2px); background: #fff; }
+    .note-waves { display: none; gap: 3px; align-items: end; height: 18px; }
+    .music-on .note-waves { display: flex; }
+    .note-waves i { display: block; width: 3px; border-radius: 4px; background: var(--rose); animation: equalize .7s ease-in-out infinite alternate; }
+    .note-waves i:nth-child(1) { height: 8px; }
+    .note-waves i:nth-child(2) { height: 15px; animation-delay: .15s; }
+    .note-waves i:nth-child(3) { height: 11px; animation-delay: .3s; }
+
+    main { opacity: 1; transition: opacity .6s ease; }
+    .hero { min-height: 720px; width: min(1180px, calc(100% - 36px)); margin: 0 auto; display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; gap: 40px; padding: 70px 0 50px; position: relative; }
+    .hero h2 { font: 600 clamp(3.7rem, 8vw, 7.9rem)/.9 var(--serif); letter-spacing: -.04em; color: #5b4855; margin: 14px 0 26px; }
+    .hero h2 em { font-family: var(--script); font-style: normal; color: var(--rose-deep); letter-spacing: 0; font-size: 1.2em; }
+    .hero-lede { font: 1.45rem/1.45 var(--script); color: #806979; max-width: 570px; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+    .ghost-button { border: 1px solid var(--line); border-radius: 999px; padding: 14px 21px; background: rgba(255,255,255,.58); color: var(--rose-deep); font-weight: 700; transition: transform .2s ease, background .2s ease; }
+    .ghost-button:hover { transform: translateY(-2px); background: #fff; }
+    .hero-scene { min-height: 460px; position: relative; display: grid; place-items: center; }
+    .moon { width: 300px; height: 300px; border-radius: 50%; background: #fff7d6; box-shadow: 0 0 0 22px rgba(255,247,214,.38), 0 0 90px rgba(255,232,161,.34); position: absolute; }
+    .cloud { position: absolute; height: 45px; width: 150px; border-radius: 999px; background: rgba(255,255,255,.75); filter: blur(.1px); }
+    .cloud::before, .cloud::after { content: ''; position: absolute; bottom: 2px; border-radius: 50%; background: inherit; }
+    .cloud::before { width: 66px; height: 66px; left: 24px; }
+    .cloud::after { width: 52px; height: 52px; right: 22px; }
+    .cloud.one { top: 14%; left: 0; transform: scale(.75); opacity: .75; }
+    .cloud.two { bottom: 16%; right: -2%; transform: scale(.9); opacity: .6; }
+    .scene-dog { transform: translateY(36px) scale(1.3); z-index: 2; }
+    .scene-bird { position: absolute; z-index: 3; bottom: 19%; left: 20%; transform: scale(.9); }
+    .scene-house { position: absolute; width: 175px; height: 112px; bottom: 14%; left: 27%; border-radius: 10px 10px 5px 5px; background: #e993a9; border: 3px solid #a86373; z-index: 1; box-shadow: 0 15px 0 rgba(183,95,121,.1); }
+    .scene-house::before { content: ''; position: absolute; left: -22px; top: -58px; width: 212px; height: 100px; background: #f7c1c9; border: 3px solid #a86373; transform: skewY(-24deg) rotate(1deg); border-radius: 8px; }
+    .scene-house::after { content: '♡'; position: absolute; color: #fff; font-size: 2.4rem; left: 68px; top: 31px; z-index: 2; }
+    .scroll-cue { position: absolute; bottom: 20px; left: 0; color: var(--muted); font-size: .75rem; display: flex; align-items: center; gap: 8px; }
+    .scroll-cue::after { content: '↓'; font-size: 1.2rem; color: var(--rose); }
+
+    .section { width: min(1060px, calc(100% - 36px)); margin: 0 auto; padding: 105px 0; position: relative; scroll-margin-top: 76px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 35px; }
+    .section h2 { font: 600 clamp(2.2rem, 5vw, 4.4rem)/1.02 var(--serif); color: #5b4855; margin: 9px 0 0; letter-spacing: -.035em; }
+    .section-intro { max-width: 490px; color: var(--muted); line-height: 1.7; margin: 13px 0 0; }
+    .date-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 34px; align-items: center; }
+    .date-card, .soft-card { background: rgba(255,255,255,.7); border: 1px solid rgba(183,95,121,.12); box-shadow: var(--shadow-soft); border-radius: 28px; padding: 34px; }
+    .date-number { font: 600 clamp(5rem, 14vw, 10rem)/.8 var(--serif); letter-spacing: -.08em; color: var(--rose-deep); }
+    .date-phrase { font: 1.35rem/1.45 var(--script); color: #806979; max-width: 430px; margin: 28px 0 0; }
+    .counter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 30px; }
+    .counter-item { padding: 15px 8px; border-radius: 17px; background: var(--sky); text-align: center; }
+    .counter-item strong { display: block; font: 600 1.7rem var(--serif); color: #527e88; }
+    .counter-item span { color: #2e6873; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; }
+    .date-character { min-height: 320px; display: grid; place-items: center; background: linear-gradient(145deg, rgba(223,241,245,.8), rgba(255,241,187,.46)); border-radius: 36px; position: relative; overflow: hidden; }
+    .calendar { position: absolute; width: 104px; height: 116px; background: #fff; border: 3px solid #59505b; border-radius: 10px; transform: rotate(-8deg); top: 56px; right: 20%; z-index: 4; box-shadow: 7px 8px 0 rgba(183,95,121,.15); }
+    .calendar::before { content: 'FEB'; display: block; padding: 7px 0; text-align: center; color: #fff; background: var(--rose); border-radius: 6px 6px 0 0; font-size: .7rem; font-weight: 700; }
+    .calendar::after { content: '4'; display: block; text-align: center; padding-top: 16px; color: var(--rose-deep); font: 600 2.2rem var(--serif); }
+    .date-character .scene-dog { transform: scale(.9) translate(0, 70px); }
+    .date-character .dog-heart { top: 83px; }
+
+    .letter-wrap { display: grid; grid-template-columns: .75fr 1.25fr; gap: 26px; align-items: stretch; }
+    .envelope-card { background: linear-gradient(145deg, #f8dfe6, #fff5f4); border-radius: 26px; min-height: 310px; display: grid; place-items: center; position: relative; overflow: hidden; border: 1px solid rgba(183,95,121,.14); }
+    .envelope { width: 230px; height: 153px; position: relative; background: #fffaf6; border: 2px solid #cf879c; border-radius: 6px; box-shadow: 0 16px 26px rgba(183,95,121,.14); transition: transform .5s ease; }
+    .envelope:hover { transform: translateY(-6px) rotate(-2deg); }
+    .envelope::before { content: ''; position: absolute; inset: 0; background: linear-gradient(32deg, transparent 49%, #edb8c4 50%, transparent 51%), linear-gradient(-32deg, transparent 49%, #edb8c4 50%, transparent 51%); opacity: .75; }
+    .envelope-flap { position: absolute; width: 164px; height: 164px; left: 31px; top: -83px; transform: rotate(45deg); background: #f8dfe6; border-right: 2px solid #cf879c; border-bottom: 2px solid #cf879c; transition: transform .7s cubic-bezier(.2,.9,.3,1); z-index: 3; }
+    .envelope-seal { position: absolute; z-index: 5; left: calc(50% - 18px); top: 61px; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--rose); color: #fff; transition: opacity .3s ease; }
+    .envelope.open .envelope-flap { transform: rotate(45deg) translate(3px, -70px); }
+    .envelope.open .envelope-seal { opacity: 0; }
+    .envelope-label { position: absolute; z-index: 4; bottom: 20px; left: 0; right: 0; text-align: center; color: var(--rose-deep); font: 1.8rem var(--script); }
+    .letter-paper { background: #fffdf9; border-radius: 26px; padding: 35px; border: 1px solid rgba(183,95,121,.12); box-shadow: var(--shadow-soft); min-height: 310px; position: relative; }
+    .letter-paper::before { content: ''; position: absolute; width: 74px; height: 74px; right: 22px; top: 16px; border-radius: 50%; background: rgba(255,241,187,.55); }
+    .letter-paper h3 { font: 2.1rem var(--script); color: var(--rose-deep); margin: 0 0 18px; position: relative; }
+    .letter-copy { line-height: 1.82; color: #685a65; white-space: pre-line; position: relative; min-height: 196px; }
+    .letter-closed .letter-copy { display: grid; place-items: center; color: var(--muted); font-style: italic; }
+    .type-cursor { border-right: 2px solid var(--rose); animation: blink 1s step-end infinite; }
+    .letter-foot { color: var(--rose-deep); font: 1.7rem var(--script); text-align: right; margin: 18px 0 0; }
+
+    .memory-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; flex-wrap: wrap; }
+    .privacy-note { font-size: .76rem; color: var(--muted); max-width: 550px; }
+    .add-memory { display: inline-flex; align-items: center; gap: 8px; }
+    .memory-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .polaroid { background: #fff; padding: 12px 12px 20px; box-shadow: var(--shadow-soft); transform: rotate(var(--tilt)); transition: transform .3s ease, box-shadow .3s ease; position: relative; border-radius: 3px; }
+    .polaroid:hover { transform: rotate(0) translateY(-7px); box-shadow: var(--shadow); }
+    .polaroid-media { aspect-ratio: 1 / .86; background: linear-gradient(135deg, #dff1f5, #f8dfe6); display: grid; place-items: center; overflow: hidden; color: #789aa2; }
+    .polaroid-media img { width: 100%; height: 100%; object-fit: cover; }
+    .polaroid h3 { font: 1.55rem var(--script); margin: 12px 4px 2px; color: #5e4b58; }
+    .polaroid p { margin: 0 4px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+    .polaroid-date { margin: 0 4px; color: var(--rose-deep); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+    .sticker { position: absolute; right: 7px; top: -13px; font-size: 1.5rem; transform: rotate(12deg); }
+    .empty-card { border: 2px dashed rgba(183,95,121,.24); background: rgba(255,255,255,.35); min-height: 250px; padding: 28px; display: grid; place-items: center; text-align: center; color: var(--muted); border-radius: 4px; transform: rotate(var(--tilt)); }
+    .empty-card span { font-size: 2rem; color: var(--rose); display: block; margin-bottom: 11px; }
+    .card-actions { display: flex; justify-content: flex-end; gap: 5px; padding-top: 10px; }
+    .text-button { border: 0; background: transparent; color: var(--rose-deep); font-size: .73rem; padding: 5px; }
+    .text-button:hover { text-decoration: underline; }
+
+    .reasons-layout { display: grid; grid-template-columns: .75fr 1.25fr; gap: 30px; align-items: start; }
+    .reasons-copy { position: sticky; top: 110px; }
+    .reasons-copy .big-heart { font-size: 5rem; color: var(--rose); display: block; margin: 8px 0 16px; }
+    .reasons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .reason-card { min-height: 142px; perspective: 800px; cursor: pointer; }
+    .reason-inner { width: 100%; height: 100%; min-height: 142px; position: relative; transition: transform .6s; transform-style: preserve-3d; }
+    .reason-card.is-open .reason-inner { transform: rotateY(180deg); }
+    .reason-front, .reason-back { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 19px; padding: 20px; border: 1px solid rgba(183,95,121,.12); box-shadow: var(--shadow-soft); }
+    .reason-front { background: rgba(255,255,255,.76); color: var(--rose-deep); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .reason-front strong { font: 1.5rem var(--script); color: #6c5664; }
+    .reason-front span { font-size: 1.4rem; }
+    .reason-back { transform: rotateY(180deg); background: var(--rose-deep); color: #fff; display: flex; align-items: center; font: 1.25rem/1.3 var(--script); }
+    .reason-tools { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+
+    .snoopy-panel { background: linear-gradient(145deg, #fff6d6, #e5f6f7); border-radius: 33px; padding: 35px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; overflow: hidden; min-height: 390px; position: relative; }
+    .snoopy-panel::after { content: '✦  ✧  ✦  ✧  ✦'; position: absolute; top: 20px; right: 20px; color: rgba(183,95,121,.35); letter-spacing: 18px; }
+    .snoopy-copy { align-self: center; position: relative; z-index: 2; }
+    .snoopy-copy h3 { font: 2.7rem/1 var(--script); color: var(--rose-deep); margin: 0 0 12px; }
+    .snoopy-copy p { color: #7d7180; line-height: 1.65; max-width: 390px; }
+    .surprise-note { min-height: 62px; padding: 14px 16px; background: rgba(255,255,255,.7); border-radius: 15px; color: var(--rose-deep); font: 1.25rem/1.3 var(--script); display: flex; align-items: center; }
+    .snoopy-scene { position: relative; display: grid; place-items: center; min-height: 300px; }
+    .snoopy-scene .scene-house { bottom: 9%; left: 50%; transform: translateX(-50%) scale(.84); }
+    .snoopy-scene .scene-dog { position: absolute; z-index: 3; bottom: 24%; left: 50%; transform: translateX(-50%) scale(.85); }
+    .snoopy-scene .scene-bird { position: absolute; z-index: 5; bottom: 13%; left: 68%; transform: scale(.75); }
+    .scene-heart { position: absolute; top: 18%; left: 46%; font-size: 2.5rem; color: var(--rose); animation: floaty 3.2s ease-in-out infinite; }
+    .tap-hint { color: #7d9498; font-size: .74rem; position: absolute; bottom: 3px; width: 100%; text-align: center; }
+
+    .garden { min-height: 460px; border-radius: 34px; padding: 30px 30px 18px; background: linear-gradient(180deg, #dff1f5 0%, #eff9ee 58%, #bedebc 59%, #a9cfaa 100%); position: relative; overflow: hidden; }
+    .garden::before { content: ''; position: absolute; width: 155px; height: 65px; left: 9%; top: 11%; background: rgba(255,255,255,.76); border-radius: 999px; box-shadow: 30px -18px 0 -3px rgba(255,255,255,.76), 67px 4px 0 -8px rgba(255,255,255,.76); }
+    .garden-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; position: relative; z-index: 2; padding: 105px 15px 65px; }
+    .flower-card { text-align: center; border: 0; background: transparent; color: var(--ink); min-height: 135px; transition: transform .25s ease; }
+    .flower-card:hover { transform: translateY(-7px); }
+    .flower { width: 64px; height: 64px; position: relative; margin: 0 auto 8px; animation: sway 3.2s ease-in-out infinite; transform-origin: bottom center; }
+    .petal { position: absolute; width: 25px; height: 34px; border-radius: 50%; left: 19px; top: 0; background: var(--rose); }
+    .petal:nth-child(2) { transform: rotate(72deg); transform-origin: 50% 31px; background: #efb0be; }
+    .petal:nth-child(3) { transform: rotate(144deg); transform-origin: 50% 31px; background: #f6c5ce; }
+    .petal:nth-child(4) { transform: rotate(216deg); transform-origin: 50% 31px; background: #eaa1b3; }
+    .petal:nth-child(5) { transform: rotate(288deg); transform-origin: 50% 31px; background: #f6c5ce; }
+    .flower::after { content: ''; position: absolute; width: 15px; height: 15px; border-radius: 50%; background: var(--butter); left: 24px; top: 23px; z-index: 2; }
+    .stem { position: absolute; bottom: -48px; left: 31px; width: 4px; height: 51px; background: #57956c; border-radius: 4px; }
+    .leaf { position: absolute; width: 22px; height: 12px; background: #6eaa7a; border-radius: 100% 0; bottom: -30px; left: 11px; transform: rotate(-23deg); }
+    .flower-label { font: 1.25rem var(--script); color: #47765d; }
+    .garden-note { position: absolute; z-index: 3; left: 24px; bottom: 22px; font: 1.75rem var(--script); color: #397058; }
+    .watering-dog { position: absolute; z-index: 4; right: 5%; bottom: 15px; transform: scale(.57); transform-origin: bottom right; }
+    .butterfly { position: absolute; z-index: 3; color: var(--rose-deep); animation: flutter 5s ease-in-out infinite; }
+    .butterfly.one { left: 17%; top: 33%; }
+    .butterfly.two { right: 23%; top: 21%; animation-delay: 1s; }
+
+    .comfort-layout { display: grid; grid-template-columns: .75fr 1.25fr; gap: 28px; align-items: center; }
+    .comfort-box { min-height: 300px; border-radius: 27px; background: linear-gradient(145deg, #f8dfe6, #f6ead7); border: 1px solid rgba(183,95,121,.14); display: grid; place-items: center; position: relative; cursor: pointer; transition: transform .25s ease; }
+    .comfort-box:hover { transform: rotate(-1deg) translateY(-4px); }
+    .comfort-lid { position: absolute; width: 220px; height: 45px; background: #d9849a; border: 3px solid #a85c76; border-radius: 12px 12px 5px 5px; top: 55px; left: 50%; transform: translateX(-50%) rotate(-3deg); transition: transform .6s ease; z-index: 2; }
+    .comfort-box.open .comfort-lid { transform: translateX(-50%) rotate(-14deg) translate(-18px, -36px); }
+    .comfort-case { width: 205px; height: 142px; background: #edabb8; border: 3px solid #a85c76; border-radius: 8px; position: relative; }
+    .comfort-case::before { content: '♡'; color: #fff; font-size: 4.1rem; position: absolute; left: 68px; top: 24px; }
+    .comfort-lock { position: absolute; z-index: 3; left: 50%; top: 38px; transform: translateX(-50%); width: 26px; height: 29px; border-radius: 6px; background: var(--butter); border: 2px solid #c9a34b; color: #aa8230; display: grid; place-items: center; font-size: .8rem; }
+    .comfort-words { padding: 10px 0; }
+    .comfort-words h3 { font: 2.6rem/1 var(--script); color: var(--rose-deep); margin: 0 0 12px; }
+    .feelings { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 14px; }
+    .feeling { border: 1px solid var(--line); background: rgba(255,255,255,.65); color: #7b6472; border-radius: 999px; padding: 9px 12px; font-size: .78rem; transition: .2s; }
+    .feeling:hover, .feeling.active { background: var(--rose-deep); color: #fff; border-color: var(--rose-deep); }
+    .comfort-message { background: rgba(255,255,255,.72); border-radius: 17px; padding: 17px; line-height: 1.65; min-height: 84px; color: #6d5f6b; }
+
+    .future-area { display: grid; grid-template-columns: 1.25fr .75fr; gap: 28px; align-items: start; }
+    .wish-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+    .wish-envelope { text-align: left; border: 1px solid rgba(183,95,121,.16); background: #fff; border-radius: 15px; min-height: 125px; padding: 18px; box-shadow: var(--shadow-soft); position: relative; transition: .25s; }
+    .wish-envelope:hover { transform: translateY(-4px); }
+    .wish-envelope::before { content: '✉'; color: var(--rose); font-size: 1.6rem; }
+    .wish-envelope p { margin: 8px 0 0; color: #6d5e69; line-height: 1.45; }
+    .wish-envelope.opened { background: var(--sky); }
+    .wish-envelope small { display: block; color: var(--muted); margin-top: 8px; }
+    .wish-form { background: rgba(255,255,255,.68); padding: 25px; border-radius: 22px; border: 1px solid var(--line); }
+    .wish-form h3 { font: 2rem var(--script); color: var(--rose-deep); margin: 0 0 13px; }
+
+    .surprise-section { text-align: center; padding-bottom: 120px; }
+    .surprise-stage { min-height: 170px; display: grid; place-items: center; position: relative; margin: 20px auto 18px; max-width: 670px; }
+    .surprise-message { font: 2.3rem/1.2 var(--script); color: var(--rose-deep); max-width: 640px; min-height: 62px; transition: opacity .3s ease, transform .3s ease; }
+    .surprise-message.pop { animation: pop .55s ease; }
+    .secret-letter { max-width: 600px; margin: 12px auto 0; background: #fffdf9; border: 1px solid var(--line); box-shadow: var(--shadow-soft); border-radius: 20px; padding: 22px; text-align: left; display: none; line-height: 1.7; }
+    .secret-letter.is-visible { display: block; animation: rise .5s ease; }
+
+    .finale { background: linear-gradient(145deg, #f8e2e8, #dff1f5); padding: 95px 24px 60px; text-align: center; position: relative; overflow: hidden; }
+    .finale::before { content: '✦  ·  ✧  ·  ✦  ·  ✧  ·  ✦'; position: absolute; top: 27px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 1.3rem; letter-spacing: .9em; white-space: nowrap; }
+    .finale .dog-art { position: relative; transform: translateX(-22px) scale(1.05); margin: 18px auto 28px; }
+    .finale .bird-art { position: absolute; bottom: 103px; left: calc(50% + 28px); transform: scale(.75); }
+    .finale h2 { font: 600 clamp(2.8rem, 7vw, 6rem)/.95 var(--serif); margin: 0 0 20px; color: #5c4755; }
+    .finale-copy { width: min(700px, 100%); margin: 0 auto 26px; font: 1.4rem/1.5 var(--script); color: #715d6b; }
+    footer { padding: 22px 24px 35px; text-align: center; color: var(--muted); font-size: .72rem; background: #fff7f2; }
+    footer strong { color: var(--rose-deep); }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(64,44,57,.38); z-index: 40; display: none; align-items: center; justify-content: center; padding: 18px; backdrop-filter: blur(7px); }
+    .modal-backdrop.is-open { display: flex; }
+    .modal { width: min(620px, 100%); max-height: 90vh; overflow: auto; background: #fffdfb; border-radius: 24px; padding: 28px; box-shadow: 0 28px 90px rgba(64,44,57,.2); position: relative; animation: rise .35s ease; }
+    .modal h2 { font: 2.4rem var(--script); color: var(--rose-deep); margin: 0 0 18px; }
+    .modal-close { position: absolute; right: 16px; top: 16px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .form-row { display: grid; gap: 6px; margin-bottom: 13px; }
+    .form-row.full { grid-column: 1 / -1; }
+    label { font-size: .75rem; font-weight: 700; color: var(--rose-deep); }
+    input, textarea, select { width: 100%; border: 1px solid rgba(183,95,121,.2); background: #fffaf8; border-radius: 12px; padding: 12px 13px; color: var(--ink); outline: 0; }
+    textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 16px; }
+    .modal-actions .ghost-button { padding: 11px 16px; }
+    .modal-actions .primary-button { padding: 11px 16px; }
+    .detail-image { width: 100%; max-height: 310px; object-fit: cover; border-radius: 12px; margin: 0 0 15px; }
+    .detail-caption { color: #6d5f6b; line-height: 1.65; white-space: pre-line; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 30px); opacity: 0; z-index: 80; pointer-events: none; background: #5b4855; color: #fff; border-radius: 999px; padding: 12px 18px; font-size: .8rem; transition: .3s ease; box-shadow: var(--shadow); }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .float-heart { position: fixed; z-index: 45; pointer-events: none; color: var(--rose); animation: float-away 1.9s ease-out forwards; font-size: 1.25rem; }
+
+    @keyframes heartbeat { 0%,100% { transform: scale(1); } 14% { transform: scale(1.16); } 28% { transform: scale(1); } }
+    @keyframes twinkle { 0%,100% { opacity: .25; transform: scale(.75) rotate(0); } 50% { opacity: 1; transform: scale(1.12) rotate(18deg); } }
+    @keyframes blink { 50% { border-color: transparent; } }
+    @keyframes equalize { to { transform: scaleY(.38); } }
+    @keyframes floaty { 0%,100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-13px) rotate(8deg); } }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pop { 0% { opacity: .2; transform: scale(.8); } 60% { opacity: 1; transform: scale(1.05); } 100% { transform: scale(1); } }
+    @keyframes sway { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(3deg); } }
+    @keyframes flutter { 0%,100% { transform: translate(0, 0) rotate(-8deg); } 50% { transform: translate(20px, -12px) rotate(12deg); } }
+    @keyframes float-away { 0% { opacity: 0; transform: translate(-50%, 0) scale(.5); } 12% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -180px) scale(1.3) rotate(20deg); } }
+
+    @media (max-width: 900px) {
+      .nav { order: 3; flex: 1 0 100%; }
+      .header-inner { flex-wrap: wrap; }
+      .hero { grid-template-columns: 1fr; min-height: 0; padding-top: 58px; }
+      .hero-copy { text-align: center; }
+      .hero-lede { margin-left: auto; margin-right: auto; }
+      .hero-actions { justify-content: center; }
+      .hero-scene { min-height: 360px; }
+      .section-head { display: block; }
+      .date-layout, .letter-wrap, .reasons-layout, .comfort-layout, .future-area { grid-template-columns: 1fr; }
+      .reasons-copy { position: static; }
+      .snoopy-panel { grid-template-columns: 1fr; }
+      .snoopy-copy { text-align: center; }
+      .snoopy-copy p { margin-left: auto; margin-right: auto; }
+      .memory-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .site-header { padding: 10px 12px; }
+      .brand small { display: none; }
+      .music-control { margin-left: auto; }
+      .nav-link { padding: 8px 9px; font-size: .69rem; }
+      .hero, .section { width: min(100% - 28px, 1060px); }
+      .hero { padding-top: 42px; }
+      .hero h2 { font-size: clamp(3.7rem, 20vw, 6rem); }
+      .hero-lede { font-size: 1.25rem; }
+      .section { padding: 73px 0; }
+      .section h2 { font-size: 2.9rem; }
+      .date-card, .soft-card, .letter-paper { padding: 24px; }
+      .date-number { font-size: 5.8rem; }
+      .counter { gap: 5px; }
+      .counter-item { padding: 11px 2px; }
+      .counter-item strong { font-size: 1.23rem; }
+      .counter-item span { font-size: .56rem; letter-spacing: .05em; }
+      .letter-wrap { gap: 15px; }
+      .envelope-card { min-height: 250px; }
+      .memory-grid { grid-template-columns: 1fr 1fr; gap: 11px; }
+      .polaroid { padding: 8px 8px 14px; }
+      .polaroid h3 { font-size: 1.22rem; }
+      .polaroid p { font-size: .68rem; }
+      .empty-card { min-height: 180px; padding: 13px; font-size: .78rem; }
+      .reasons-grid { gap: 9px; }
+      .reason-front, .reason-back { padding: 14px; }
+      .reason-front strong { font-size: 1.18rem; }
+      .reason-back { font-size: 1.02rem; }
+      .snoopy-panel { padding: 25px 17px; }
+      .snoopy-copy h3 { font-size: 2.3rem; }
+      .snoopy-scene { min-height: 275px; }
+      .garden { padding-left: 9px; padding-right: 9px; }
+      .garden-grid { gap: 5px; padding-top: 96px; }
+      .flower-label { font-size: 1rem; }
+      .garden-note { left: 17px; font-size: 1.35rem; }
+      .watering-dog { right: -18%; transform: scale(.45); }
+      .wish-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
+      .wish-envelope { padding: 13px; font-size: .8rem; }
+      .wish-envelope p { font-size: .76rem; }
+      .form-grid { grid-template-columns: 1fr; gap: 0; }
+      .form-row.full { grid-column: auto; }
+      .modal { padding: 22px 17px; }
+      .prelude h1 { font-size: 3.3rem; }
+      .prelude-copy { font-size: 1.15rem; }
+      .prelude .bird-art { right: 16%; }
+      .finale { padding-left: 18px; padding-right: 18px; }
+      .finale-copy { font-size: 1.2rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body class="locked">
+  <div class="sky-dots" aria-hidden="true"></div>
+
+  <section class="prelude" id="prelude" aria-label="Bienvenida">
+    <div class="sparkles" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>
+    <div class="prelude-inner">
+      <div class="prelude-kicker">Un lugar hecho con todo mi corazón</div>
+      <div class="character-stage" aria-hidden="true">
+        <div class="dog-art">
+          <span class="dog-ear"></span><span class="dog-ear right"></span><span class="dog-head"><i class="dog-eye"></i><i class="dog-eye right"></i><i class="dog-nose"></i><i class="dog-smile"></i></span><span class="dog-body"></span><span class="dog-arm"></span><span class="dog-arm r"></span><span class="dog-foot"></span><span class="dog-foot r"></span><span class="heart dog-heart">♥</span>
+        </div>
+        <div class="bird-art"><span class="bird-body"></span><span class="bird-head"></span><span class="bird-eye"></span><span class="bird-beak"></span><span class="bird-wing"></span><span class="bird-feet"></span></div>
+      </div>
+      <div class="prelude-kicker">Para ti, Dayana</div>
+      <h1>Mi niña,<br>bienvenida a nuestro mundito.</h1>
+      <p class="prelude-copy">Hice este pequeño lugar para ti, mi amor, porque hay cosas que siento por ti que ni siquiera sé cómo explicar con palabras.</p>
+      <button class="enter-button" id="enterBtn">Entrar a nuestro mundito ♡</button>
+      <div class="tiny-note">Un universo pequeño, una historia enorme.</div>
+    </div>
+  </section>
+
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      <a class="brand" href="#inicio" aria-label="Volver al inicio"><span class="brand-mark">♡</span><span><strong>Dayana</strong><small>nuestro mundito</small></span></a>
+      <nav class="nav" aria-label="Navegación principal">
+        <button class="nav-link" data-target="fecha">04.02</button>
+        <button class="nav-link" data-target="carta">Carta</button>
+        <button class="nav-link" data-target="recuerdos">Recuerdos</button>
+        <button class="nav-link" data-target="razones">Razones</button>
+        <button class="nav-link" data-target="snoopy">Snoopy</button>
+        <button class="nav-link" data-target="jardin">Jardín</button>
+        <button class="nav-link" data-target="futuro">Futuro</button>
+      </nav>
+      <div class="music-control" id="musicControl">
+        <div class="note-waves" aria-hidden="true"><i></i><i></i><i></i></div>
+        <button class="icon-button" id="musicBtn" aria-label="Activar música" aria-pressed="false">♫</button>
+        <label class="sr-only" for="volumeRange">Volumen</label>
+        <input id="volumeRange" type="range" min="0" max="1" step="0.05" value="0.16" style="width:66px; accent-color:#b75f79" aria-label="Volumen" />
+      </div>
+    </div>
+  </header>
+
+  <main id="mainContent">
+    <section class="hero" id="inicio">
+      <div class="hero-copy">
+        <div class="eyebrow">Un rincón solo para ti · 2026</div>
+        <h2>Hola,<br><em>mi niña.</em></h2>
+        <p class="hero-lede">Aquí guardé un poquito de todo lo que siento por ti: en cartas, flores, estrellas, recuerdos y pequeños gestos para que puedas volver cuando quieras.</p>
+        <div class="hero-actions"><button class="primary-button" data-target="carta">Leer mi carta</button><button class="ghost-button" data-target="sorpresa">Quiero una sorpresita ♡</button></div>
+        <div class="scroll-cue">Explora despacito</div>
+      </div>
+        <div class="hero-scene" role="img" aria-label="Ilustración de un perrito y un pajarito junto a una casita">
+        <div class="moon"></div><div class="cloud one"></div><div class="cloud two"></div><div class="scene-house"></div>
+        <div class="dog-art scene-dog"><span class="dog-ear"></span><span class="dog-ear right"></span><span class="dog-head"><i class="dog-eye"></i><i class="dog-eye right"></i><i class="dog-nose"></i><i class="dog-smile"></i></span><span class="dog-body"></span><span class="dog-arm"></span><span class="dog-arm r"></span><span class="dog-foot"></span><span class="dog-foot r"></span><span class="heart dog-heart">♥</span></div>
+        <div class="bird-art scene-bird"><span class="bird-body"></span><span class="bird-head"></span><span class="bird-eye"></span><span class="bird-beak"></span><span class="bird-wing"></span><span class="bird-feet"></span></div>
+      </div>
+    </section>
+
+    <section class="section" id="fecha">
+      <div class="section-head"><div><div class="eyebrow">El comienzo de nosotros</div><h2>La fecha que guardo<br>cerquita del corazón.</h2></div><p class="section-intro">Hay días que se vuelven especiales para siempre. Para mí, ese día es el 4 de febrero: el día en que nos hicimos novios y empezó esta parte tan bonita de mi historia.</p></div>
+      <div class="date-layout"><div class="date-card"><div class="date-number">04.02</div><p class="date-phrase">El día en que comenzó una de las historias más bonitas de mi vida: la nuestra.</p><div class="counter" aria-live="polite"><div class="counter-item"><strong id="days">—</strong><span>días</span></div><div class="counter-item"><strong id="hours">—</strong><span>horas</span></div><div class="counter-item"><strong id="minutes">—</strong><span>minutos</span></div><div class="counter-item"><strong id="seconds">—</strong><span>segundos</span></div></div></div><div class="date-character"><div class="calendar" role="img" aria-label="Calendario con el 4 de febrero"></div><div class="dog-art scene-dog"><span class="dog-ear"></span><span class="dog-ear right"></span><span class="dog-head"><i class="dog-eye"></i><i class="dog-eye right"></i><i class="dog-nose"></i><i class="dog-smile"></i></span><span class="dog-body"></span><span class="dog-arm"></span><span class="dog-arm r"></span><span class="dog-foot"></span><span class="dog-foot r"></span><span class="heart dog-heart">♥</span></div></div></div>
+    </section>
+
+    <section class="section" id="carta">
+      <div class="section-head"><div><div class="eyebrow">Ábrela cuando quieras</div><h2>Una carta<br>desde mi corazón.</h2></div><p class="section-intro">No hace falta una fecha especial para decirte lo importante que eres para mí. Toca el sobre; las palabras aparecerán poquito a poquito.</p></div>
+      <div class="letter-wrap"><button class="envelope-card" id="envelopeCard" aria-label="Abrir carta de amor"><span class="envelope"><i class="envelope-flap"></i><i class="envelope-seal">♡</i><span class="envelope-label">Para mi niña</span></span></button><article class="letter-paper letter-closed" id="letterPaper"><h3>Mi Dayana,</h3><div class="letter-copy" id="letterCopy"><span>Toca el sobre para abrir mi carta.</span></div><div class="letter-foot">Con amor, siempre yo ♡</div></article></div>
+    </section>
+
+    <section class="section" id="recuerdos">
+      <div class="section-head"><div><div class="eyebrow">Nuestro pequeño museo</div><h2>Lo que vivimos,<br>guardado aquí.</h2></div><p class="section-intro">Este álbum empieza con espacios para tus fotos reales. Añade el momento, ponle tus propias palabras y deja que este rincón se vuelva cada vez más nuestro.</p></div>
+      <div class="memory-toolbar"><p class="privacy-note">Tus fotos se convierten en datos locales del navegador. No se suben a ningún servidor y no se garantiza que permanezcan si borras los datos del sitio o cambias de dispositivo.</p><button class="primary-button add-memory" id="addMemoryBtn">＋ Añadir recuerdo</button></div>
+      <div class="memory-grid" id="memoryGrid"></div>
+    </section>
+
+    <section class="section" id="razones">
+      <div class="section-head"><div><div class="eyebrow">Puedes abrirlas una por una</div><h2>Las razones<br>por las que te amo.</h2></div><p class="section-intro">No son una lista cerrada. Son pequeñas verdades que siento y que puedes editar, borrar o ampliar con las razones que solo tú y yo conocemos.</p></div>
+      <div class="reasons-layout"><div class="reasons-copy soft-card"><span class="big-heart">♡</span><p>Algunas razones hacen ruido y otras viven en lo cotidiano. Todas caben aquí porque tú cabes en todos mis días.</p><div class="reason-tools"><button class="primary-button" id="addReasonBtn">＋ Agregar razón</button><button class="ghost-button" id="resetReasonsBtn">Restaurar base</button></div></div><div class="reasons-grid" id="reasonsGrid"></div></div>
+    </section>
+
+    <section class="section" id="snoopy">
+      <div class="section-head"><div><div class="eyebrow">Tu rincón reconfortante</div><h2>El rincón de Snoopy<br>y mi niña.</h2></div><p class="section-intro">Toca al perrito o a su amiguito para que te dejen una nota. Porque incluso en los días normales, me gusta recordarte lo mucho que te quiero.</p></div>
+      <div class="snoopy-panel"><div class="snoopy-copy"><h3>Un abrazo en forma de pantalla.</h3><p>Si pudiera, te dejaría un abrazo aquí para que lo tomaras cuando lo necesitaras. Mientras tanto, toca a Snoopy y deja que te entregue una frase.</p><div class="surprise-note" id="snoopyNote">Psst… toca a tu compañero de casita ♡</div></div><div class="snoopy-scene" id="snoopyScene" role="button" tabindex="0" aria-label="Tocar para recibir un mensaje"><div class="scene-heart">♥</div><div class="scene-house"></div><div class="dog-art scene-dog"><span class="dog-ear"></span><span class="dog-ear right"></span><span class="dog-head"><i class="dog-eye"></i><i class="dog-eye right"></i><i class="dog-nose"></i><i class="dog-smile"></i></span><span class="dog-body"></span><span class="dog-arm"></span><span class="dog-arm r"></span><span class="dog-foot"></span><span class="dog-foot r"></span><span class="heart dog-heart">♥</span></div><div class="bird-art scene-bird"><span class="bird-body"></span><span class="bird-head"></span><span class="bird-eye"></span><span class="bird-beak"></span><span class="bird-wing"></span><span class="bird-feet"></span></div><div class="tap-hint">tócame suavemente</div></div></div>
+    </section>
+
+    <section class="section" id="jardin">
+      <div class="section-head"><div><div class="eyebrow">Cuida lo que sentimos</div><h2>Un jardín<br>de nuestro amor.</h2></div><p class="section-intro">Cada flor guarda algo que agradezco. Tócalas para descubrirlo. El amor también se parece a esto: regarlo, tener paciencia y dejarlo florecer a su ritmo.</p></div>
+      <div class="garden"><div class="butterfly one">🦋</div><div class="butterfly two">🦋</div><div class="garden-grid" id="gardenGrid"></div><div class="garden-note">Crece despacito, pero crece bonito.</div><div class="dog-art watering-dog" aria-hidden="true"><span class="dog-ear"></span><span class="dog-ear right"></span><span class="dog-head"><i class="dog-eye"></i><i class="dog-eye right"></i><i class="dog-nose"></i><i class="dog-smile"></i></span><span class="dog-body"></span><span class="dog-arm"></span><span class="dog-arm r"></span><span class="dog-foot"></span><span class="dog-foot r"></span><span class="heart dog-heart">♥</span></div></div>
+    </section>
+
+    <section class="section" id="calma">
+      <div class="section-head"><div><div class="eyebrow">Para cualquier día</div><h2>Una cajita<br>para cuando lo necesites.</h2></div><p class="section-intro">No tienes que estar bien todo el tiempo. Elige cómo te sientes y deja que esta cajita te recuerde, con ternura, que tus emociones importan.</p></div>
+      <div class="comfort-layout"><div class="comfort-box" id="comfortBox" role="button" tabindex="0" aria-label="Abrir cajita de mensajes"><div class="comfort-case"></div><div class="comfort-lid"></div><div class="comfort-lock">♡</div></div><div class="comfort-words"><h3>¿Cómo estás hoy, mi amor?</h3><div class="feelings" id="feelings"><button class="feeling" data-feeling="triste">Triste</button><button class="feeling" data-feeling="cansada">Cansada</button><button class="feeling" data-feeling="estresada">Estresada</button><button class="feeling" data-feeling="feliz">Feliz</button><button class="feeling" data-feeling="insegura">Insegura</button><button class="feeling" data-feeling="cariño">Quiero cariño</button></div><div class="comfort-message" id="comfortMessage">Abre la cajita y elige una opción. Aquí no hay nada que demostrar.</div><button class="ghost-button" id="loveReminderBtn" style="margin-top:13px">Necesito recordar cuánto me amas ♡</button></div></div>
+    </section>
+
+    <section class="section" id="futuro">
+      <div class="section-head"><div><div class="eyebrow">Sueños, no promesas</div><h2>Nuestra cajita<br>de recuerdos futuros.</h2></div><p class="section-intro">Son deseos que podemos ir construyendo, sin prisa y sin dar nada por hecho. Escribe los tuyos para que queden aquí como pequeñas semillas.</p></div>
+      <div class="future-area"><div class="wish-grid" id="wishGrid"></div><form class="wish-form" id="wishForm"><h3>Guarda un deseo.</h3><div class="form-row"><label for="wishText">Algo bonito que te gustaría que construyamos</label><textarea id="wishText" maxlength="220" required placeholder="Ej.: aprender algo nuevo juntos…"></textarea></div><button class="primary-button" type="submit">Guardar en un sobre ♡</button><p class="privacy-note" style="margin:12px 0 0">Se queda únicamente en este navegador. Puedes abrirlo más adelante o eliminarlo.</p></form></div>
+    </section>
+
+    <section class="section surprise-section" id="sorpresa">
+      <div class="eyebrow">Una pequeña magia</div><h2>¿Quieres una sorpresita?</h2><div class="surprise-stage"><div class="surprise-message" id="surpriseMessage">Pulsa el botón y deja que el azar te abrace.</div></div><button class="primary-button" id="surpriseBtn">Toca aquí si quieres una sorpresita ♡</button><button class="ghost-button" id="secretBtn" style="margin-left:8px">Snoopy, entrégale una carta secreta</button><div class="secret-letter" id="secretLetter">Dayana, no necesitas hacer nada extraordinario para ser profundamente importante para mí. Me encanta que seas tú, con tus días bonitos y tus días complicados, con tus formas de hablar y tus silencios. Ojalá este pequeño mundo te recuerde algo sencillo: te amo por quien eres, no por lo que puedas darme. ♡</div>
+    </section>
+  </main>
+
+  <section class="finale" id="finale"><div class="dog-art"><span class="dog-ear"></span><span class="dog-ear right"></span><span class="dog-head"><i class="dog-eye"></i><i class="dog-eye right"></i><i class="dog-nose"></i><i class="dog-smile"></i></span><span class="dog-body"></span><span class="dog-arm"></span><span class="dog-arm r"></span><span class="dog-foot"></span><span class="dog-foot r"></span><span class="heart dog-heart">♥</span></div><div class="bird-art"><span class="bird-body"></span><span class="bird-head"></span><span class="bird-eye"></span><span class="bird-beak"></span><span class="bird-wing"></span><span class="bird-feet"></span></div><h2>Esto no es un final,<br>mi amor.</h2><p class="finale-copy">Si algún día te preguntas cuánto te amo, recuerda que existe un pequeño mundo entero que hice pensando en ti. Y aunque ninguna página pueda explicar completamente lo que siento, quería que tuvieras un lugar al que entrar y recordar lo especial que eres para mí. Gracias por ser parte de mi historia, mi amor. Te amo muchísimo, Dayana. 🤍</p><button class="primary-button" id="backToStart">Volver a leer nuestra historia ♡</button></section>
+
+  <footer><strong>Nota de este mundito:</strong> fotos, razones y deseos se guardan con <code>localStorage</code> en este navegador. No hay una cuenta ni un servidor detrás; exporta o conserva tus originales aparte si son importantes para ti.</footer>
+
+  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true"><div class="modal" id="modalContent"></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    'use strict';
+    const STORAGE = { memories: 'dayana_memories_v1', reasons: 'dayana_reasons_v1', wishes: 'dayana_wishes_v1', custom: 'dayana_custom_v1' };
+    const defaultReasons = [
+      'Tu forma de ser tan tú, sin tener que fingir nada.',
+      'La manera en que haces que un día sencillo se sienta especial.',
+      'Cómo tu presencia puede traerme calma sin decir demasiado.',
+      'Tus pequeños detalles, esos que quizá tú no notas pero yo sí.',
+      'La forma en que hablas y conviertes cualquier conversación en algo nuestro.',
+      'Que contigo puedo aprender a querer de una forma más bonita y sana.',
+      'Tu manera de hacerme sonreír incluso cuando el día pesa.',
+      'Lo especial que eres, incluso en tus momentos más inseguros.',
+      'La compañía que eliges compartir conmigo, tal y como eres.',
+      'Que no necesito que seas perfecta para sentir que eres increíble.',
+      'Todo lo que despiertas en mí cuando simplemente estás cerca.',
+      'La historia que estamos construyendo, paso a paso y sin prisa.'
+    ];
+    const gardenItems = [
+      ['Tu ternura', 'Gracias por la suavidad que pones en tantos detalles.'],
+      ['Tu compañía', 'Contigo, lo cotidiano tiene un brillo distinto.'],
+      ['Tu manera de hablar', 'Me gusta escucharte, incluso cuando hablas de cosas pequeñas.'],
+      ['Tu valentía', 'Admiro que sigas siendo tú, aun cuando algunos días cuestan.'],
+      ['Lo que aprendemos', 'Cada día me enseña una forma nueva de cuidarnos.'],
+      ['Tu existencia', 'Qué bonito que estés en el mundo… y que nuestros caminos se hayan encontrado.']
+    ];
+    const letterText = `Quiero que sepas algo, Dayana: eres muchísimo más importante para mí de lo que a veces sé explicar.
+
+Me gusta tu forma de ser, tus pequeños detalles, la manera en que hablas y todo eso que te hace ser tú. Me haces feliz con tu presencia, incluso cuando no estamos haciendo nada extraordinario; contigo, las cosas sencillas también se sienten especiales.
+
+Yo no soy perfecto. Puedo equivocarme, decir algo mal o no saber siempre cómo demostrarte lo que siento. Pero lo que siento por ti es real, y quiero seguir aprendiendo a amarte de una manera más bonita, más sana y más paciente.
+
+Te amo por quien eres, no por lo que puedas darme. Nunca quiero que sientas que tienes que demostrarme nada para merecer mi amor. No tienes que ganártelo: te quiero porque eres tú, con tus días buenos, tus días difíciles, tus dudas y tu manera única de mirar el mundo.
+
+Gracias por ser parte de mi vida y por compartir conmigo esta historia. Ojalá este pequeño mundo te recuerde siempre que aquí tienes a alguien que te quiere muchísimo.`;
+    const comfortMessages = {
+      triste: 'No tienes que esconder lo que sientes ni apresurarte a estar bien. Puedes ir despacito. Tus emociones importan, y mereces ternura incluso en los días grises.',
+      cansada: 'Descansa, mi amor. No tienes que poder con todo ni explicarme por qué hoy necesitas parar. Tu valor no depende de cuánto hagas.',
+      estresada: 'Respira conmigo: una cosa a la vez. No tienes que resolverlo todo ahora. Mereces paciencia, cuidado y un espacio donde puedas bajar los hombros.',
+      feliz: 'Qué bonito saber que hoy hay un poquito de luz en ti. Disfrútala sin culpa; me encanta verte feliz y celebrar contigo hasta las cosas pequeñas.',
+      insegura: 'No tienes que verte con los ojos más duros del mundo. Eres valiosa incluso cuando dudas, y no tienes que transformarte para merecer amor.',
+      cariño: 'Aquí va un abrazo largo, suave y sin preguntas. Ojalá pudiera dártelo ahora mismo. Mientras tanto: te quiero, te cuido y estoy feliz de que seas tú.'
+    };
+    const surprisePool = [
+      'Si pudiera, te mandaría un abrazo que durara todo el día. ♡',
+      'Recordatorio: hay alguien que te ama muchísimo.',
+      'Eres mi personita especial, incluso en tus días normales.',
+      'No tienes que hacer nada para que yo quiera quedarme a escucharte.',
+      'Una estrella acaba de brillar por ti. ✦',
+      'Me gustas en lo extraordinario y también en lo cotidiano.',
+      'Tú haces que mi corazón tenga un lugar favorito.',
+      'Hoy también te elegiría para compartir una tarde sencilla.',
+      'Te dejo un corazón para que lo guardes donde quieras. ♥',
+      'Gracias por existir de esa forma tan tuya.'
+    ];
+
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+    const readStore = (key, fallback) => { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch { return fallback; } };
+    const writeStore = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { toast('El navegador no pudo guardar este cambio.'); return false; } };
+    let reasons = readStore(STORAGE.reasons, defaultReasons.map((text, i) => ({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+i), text })));
+    let memories = readStore(STORAGE.memories, []);
+    let wishes = readStore(STORAGE.wishes, [
+      { id: 'seed-1', text: 'Seguir creando recuerdos sencillos que se sientan enormes.', opened: false },
+      { id: 'seed-2', text: 'Reírnos de cosas que solo nosotros entendemos.', opened: false },
+      { id: 'seed-3', text: 'Aprender el uno del otro con paciencia y cariño.', opened: false },
+      { id: 'seed-4', text: 'Compartir nuevas experiencias cuando la vida nos dé la oportunidad.', opened: false }
+    ]);
+
+    function uuid() { return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
+    function toast(message) { const el = $('#toast'); el.textContent = message; el.classList.add('show'); clearTimeout(window.__toast); window.__toast = setTimeout(() => el.classList.remove('show'), 2800); }
+    function scrollToId(id) { const target = document.getElementById(id); if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    function sprinkleHearts(x = window.innerWidth / 2, y = window.innerHeight / 2, amount = 14) { for (let i = 0; i < amount; i++) { const h = document.createElement('span'); h.className = 'float-heart'; h.textContent = i % 3 === 0 ? '✦' : '♥'; h.style.left = `${x + (Math.random() * 100 - 50)}px`; h.style.top = `${y + (Math.random() * 60 - 30)}px`; h.style.animationDelay = `${Math.random() * .25}s`; h.style.fontSize = `${.75 + Math.random() * .9}rem`; document.body.appendChild(h); setTimeout(() => h.remove(), 2200); } }
+
+    function renderReasons() {
+      const grid = $('#reasonsGrid'); grid.innerHTML = '';
+      reasons.forEach((reason, index) => {
+        const card = document.createElement('article'); card.className = 'reason-card'; card.innerHTML = `<div class="reason-inner"><div class="reason-front"><strong>Razón ${String(index + 1).padStart(2, '0')}</strong><span>♡</span></div><div class="reason-back"><span>${escapeHtml(reason.text)}</span></div></div><div class="card-actions"><button class="text-button edit-reason" data-id="${reason.id}">Editar</button><button class="text-button delete-reason" data-id="${reason.id}">Borrar</button></div>`;
+        $('.reason-inner', card).addEventListener('click', () => card.classList.toggle('is-open'));
+        $('.edit-reason', card).addEventListener('click', (e) => { e.stopPropagation(); editReason(reason.id); });
+        $('.delete-reason', card).addEventListener('click', (e) => { e.stopPropagation(); reasons = reasons.filter(r => r.id !== reason.id); writeStore(STORAGE.reasons, reasons); renderReasons(); toast('Razón retirada de la colección.'); });
+        grid.appendChild(card);
+      });
+    }
+    function editReason(id) { const item = reasons.find(r => r.id === id); if (!item) return; openModal(`<button class="icon-button modal-close" data-close aria-label="Cerrar">×</button><h2>Editar razón</h2><div class="form-row"><label for="reasonInput">Lo que amo de ti</label><textarea id="reasonInput" maxlength="220">${escapeHtml(item.text)}</textarea></div><div class="modal-actions"><button class="ghost-button" data-close>Cancelar</button><button class="primary-button" id="saveReason">Guardar razón</button></div>`); $('#saveReason').addEventListener('click', () => { const value = $('#reasonInput').value.trim(); if (!value) return toast('Escribe una razón antes de guardar.'); item.text = value; writeStore(STORAGE.reasons, reasons); closeModal(); renderReasons(); toast('Tu razón quedó guardada.'); }); }
+    function addReason() { openModal(`<button class="icon-button modal-close" data-close aria-label="Cerrar">×</button><h2>Una razón más</h2><div class="form-row"><label for="reasonInput">Lo que amo de ti</label><textarea id="reasonInput" maxlength="220" placeholder="Escribe algo que solo tú dirías de ella…"></textarea></div><div class="modal-actions"><button class="ghost-button" data-close>Cancelar</button><button class="primary-button" id="saveReason">Agregar</button></div>`); $('#saveReason').addEventListener('click', () => { const value = $('#reasonInput').value.trim(); if (!value) return toast('Escribe una razón antes de guardar.'); reasons.push({ id: uuid(), text: value }); writeStore(STORAGE.reasons, reasons); closeModal(); renderReasons(); toast('Una razón más para quererla.'); }); }
+
+    function renderMemories() { const grid = $('#memoryGrid'); grid.innerHTML = ''; memories.forEach((memory, index) => grid.appendChild(memoryCard(memory, index))); for (let i = memories.length; i < Math.max(3, memories.length + 1); i++) { const empty = document.createElement('div'); empty.className = 'empty-card'; empty.style.setProperty('--tilt', `${i % 2 ? 1.4 : -1.2}deg`); empty.innerHTML = `<div><span>♡</span><div>Aquí guardaremos nuestro próximo recuerdo.</div><button class="text-button" data-add-memory>añadir uno</button></div>`; $('[data-add-memory]', empty).addEventListener('click', openMemoryModal); grid.appendChild(empty); } }
+    function memoryCard(memory, index) { const article = document.createElement('article'); article.className = 'polaroid'; article.style.setProperty('--tilt', `${index % 2 ? 1.5 : -1.6}deg`); article.innerHTML = `<div class="sticker">${index % 2 ? '✦' : '♡'}</div><div class="polaroid-media">${memory.image ? `<img src="${memory.image}" alt="${escapeHtml(memory.title || 'Recuerdo de Dayana')}" />` : '<span style="font-size:2rem">♡</span>'}</div><h3>${escapeHtml(memory.title || 'Un momento nuestro')}</h3><div class="polaroid-date">${escapeHtml(memory.date || 'sin fecha')}</div><p>${escapeHtml(memory.description || 'Un pedacito de nuestra historia.')}</p><div class="card-actions"><button class="text-button open-memory">Abrir</button><button class="text-button edit-memory">Editar</button><button class="text-button delete-memory">Borrar</button></div>`; $('.open-memory', article).addEventListener('click', () => openMemoryDetail(memory)); $('.edit-memory', article).addEventListener('click', () => openMemoryModal(memory)); $('.delete-memory', article).addEventListener('click', () => { memories = memories.filter(m => m.id !== memory.id); writeStore(STORAGE.memories, memories); renderMemories(); toast('Recuerdo eliminado de este navegador.'); }); return article; }
+    function openMemoryModal(memory = null) { const editing = Boolean(memory); openModal(`<button class="icon-button modal-close" data-close aria-label="Cerrar">×</button><h2>${editing ? 'Editar recuerdo' : 'Guardar un recuerdo'}</h2><div class="form-grid"><div class="form-row"><label for="memoryTitle">Título</label><input id="memoryTitle" maxlength="60" value="${escapeHtml(memory?.title || '')}" placeholder="Un título que te haga sonreír" /></div><div class="form-row"><label for="memoryDate">Fecha</label><input id="memoryDate" type="date" value="${escapeHtml(memory?.date || '')}" /></div><div class="form-row full"><label for="memoryDescription">Descripción</label><textarea id="memoryDescription" maxlength="240" placeholder="¿Qué significa este momento para ti?">${escapeHtml(memory?.description || '')}</textarea></div><div class="form-row full"><label for="memoryImage">Fotografía desde tu dispositivo</label><input id="memoryImage" type="file" accept="image/*" /><small class="privacy-note">Se guarda como una copia local en este navegador. Para cuidar el espacio, utiliza fotos no demasiado pesadas.</small></div></div><div class="modal-actions"><button class="ghost-button" data-close>Cancelar</button><button class="primary-button" id="saveMemory">${editing ? 'Guardar cambios' : 'Añadir al museo'}</button></div>`); $('#saveMemory').addEventListener('click', () => saveMemory(memory)); }
+    function saveMemory(existing) { const title = $('#memoryTitle').value.trim(); const date = $('#memoryDate').value; const description = $('#memoryDescription').value.trim(); const file = $('#memoryImage').files[0]; const finish = (image = existing?.image || '') => { const value = { id: existing?.id || uuid(), title: title || 'Un momento nuestro', date: date || 'sin fecha', description: description || 'Un pedacito de nuestra historia.', image }; if (existing) Object.assign(existing, value); else memories.unshift(value); if (writeStore(STORAGE.memories, memories)) { closeModal(); renderMemories(); toast('Tu recuerdo quedó guardado aquí.'); } }; if (file) { if (file.size > 3_500_000) { toast('Esta foto pesa más de 3.5 MB; elige una más ligera.'); return; } const reader = new FileReader(); reader.onload = () => finish(reader.result); reader.readAsDataURL(file); } else finish(); }
+    function openMemoryDetail(memory) { openModal(`<button class="icon-button modal-close" data-close aria-label="Cerrar">×</button><h2>${escapeHtml(memory.title || 'Un momento nuestro')}</h2>${memory.image ? `<img class="detail-image" src="${memory.image}" alt="${escapeHtml(memory.title || 'Recuerdo')}" />` : ''}<p class="polaroid-date">${escapeHtml(memory.date || 'sin fecha')}</p><p class="detail-caption">${escapeHtml(memory.description || 'Este momento todavía está esperando tus palabras.')}</p><div class="modal-actions"><button class="primary-button" data-close>Cerrar recuerdo</button></div>`); }
+
+    function renderGarden() { const grid = $('#gardenGrid'); grid.innerHTML = gardenItems.map((item, i) => `<button class="flower-card" data-garden="${i}" aria-label="Abrir flor: ${item[0]}"><span class="flower"><i class="petal"></i><i class="petal"></i><i class="petal"></i><i class="petal"></i><i class="petal"></i><i class="stem"></i><i class="leaf"></i></span><span class="flower-label">${item[0]}</span></button>`).join(''); $$('.flower-card', grid).forEach(btn => btn.addEventListener('click', () => { const item = gardenItems[Number(btn.dataset.garden)]; openModal(`<button class="icon-button modal-close" data-close aria-label="Cerrar">×</button><div class="eyebrow">Una flor para ti</div><h2>${item[0]}</h2><p class="detail-caption">${item[1]}</p><div class="modal-actions"><button class="primary-button" data-close>Guardar en el corazón</button></div>`); sprinkleHearts(window.innerWidth/2, window.innerHeight/2, 7); })); }
+    function renderWishes() { const grid = $('#wishGrid'); grid.innerHTML = wishes.map(w => `<button class="wish-envelope ${w.opened ? 'opened' : ''}" data-wish="${w.id}"><p>${w.opened ? escapeHtml(w.text) : 'Un deseo guardado para abrirlo despacito…'}</p><small>${w.opened ? 'Abierto con cariño' : 'Toca para abrir'}</small></button>`).join(''); $$('.wish-envelope', grid).forEach(btn => btn.addEventListener('click', () => { const wish = wishes.find(w => w.id === btn.dataset.wish); wish.opened = true; writeStore(STORAGE.wishes, wishes); renderWishes(); toast('Un deseo se abrió. Qué bonito soñarlo juntos.'); })); }
+    function escapeHtml(str = '') { return String(str).replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#039;', '"':'&quot;' }[ch])); }
+
+    function openModal(html) { const backdrop = $('#modalBackdrop'); $('#modalContent').innerHTML = html; backdrop.classList.add('is-open'); backdrop.setAttribute('aria-hidden', 'false'); document.body.classList.add('locked'); $$('[data-close]', backdrop).forEach(btn => btn.addEventListener('click', closeModal)); backdrop.onclick = e => { if (e.target === backdrop) closeModal(); }; }
+    function closeModal() { const backdrop = $('#modalBackdrop'); backdrop.classList.remove('is-open'); backdrop.setAttribute('aria-hidden', 'true'); $('#modalContent').innerHTML = ''; document.body.classList.remove('locked'); }
+
+    function startCounter() { const start = new Date(2026, 1, 4, 0, 0, 0); const update = () => { let diff = Math.max(0, Date.now() - start.getTime()); const days = Math.floor(diff / 86400000); diff %= 86400000; const hours = Math.floor(diff / 3600000); diff %= 3600000; const minutes = Math.floor(diff / 60000); diff %= 60000; const seconds = Math.floor(diff / 1000); $('#days').textContent = days; $('#hours').textContent = String(hours).padStart(2, '0'); $('#minutes').textContent = String(minutes).padStart(2, '0'); $('#seconds').textContent = String(seconds).padStart(2, '0'); }; update(); setInterval(update, 1000); }
+
+    let audioCtx, masterGain, melodyTimer, noteIndex = 0;
+    const melody = [261.63, 329.63, 392.00, 329.63, 293.66, 349.23, 440.00, 349.23];
+    function toggleMusic() { if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); masterGain = audioCtx.createGain(); masterGain.gain.value = Number($('#volumeRange').value); masterGain.connect(audioCtx.destination); } if (audioCtx.state === 'suspended') audioCtx.resume(); if (melodyTimer) { clearInterval(melodyTimer); melodyTimer = null; $('#musicBtn').setAttribute('aria-pressed', 'false'); $('#musicBtn').setAttribute('aria-label', 'Activar música'); $('#musicControl').classList.remove('music-on'); return; } const playNote = () => { const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = 'sine'; osc.frequency.value = melody[noteIndex++ % melody.length]; gain.gain.setValueAtTime(0, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(.18, audioCtx.currentTime + .06); gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + 1.1); osc.connect(gain).connect(masterGain); osc.start(); osc.stop(audioCtx.currentTime + 1.15); }; playNote(); melodyTimer = setInterval(playNote, 760); $('#musicBtn').setAttribute('aria-pressed', 'true'); $('#musicBtn').setAttribute('aria-label', 'Pausar música'); $('#musicControl').classList.add('music-on'); }
+
+    function typeLetter() { const copy = $('#letterCopy'); copy.innerHTML = ''; let i = 0; const cursor = document.createElement('span'); cursor.className = 'type-cursor'; copy.appendChild(cursor); const tick = () => { if (i < letterText.length) { cursor.before(document.createTextNode(letterText[i])); i++; setTimeout(tick, letterText[i-1] === '\n' ? 220 : 19); } else cursor.remove(); }; tick(); }
+
+    $('#enterBtn').addEventListener('click', () => { $('#prelude').classList.add('is-gone'); document.body.classList.remove('locked'); sprinkleHearts(window.innerWidth/2, window.innerHeight*.55, 24); setTimeout(() => $('#inicio').focus?.(), 900); });
+    $$('[data-target]').forEach(btn => btn.addEventListener('click', () => scrollToId(btn.dataset.target)));
+    $('#envelopeCard').addEventListener('click', () => { const env = $('.envelope', $('#envelopeCard')); const paper = $('#letterPaper'); const opening = !env.classList.contains('open'); env.classList.toggle('open', opening); paper.classList.toggle('letter-closed', !opening); if (opening) { typeLetter(); sprinkleHearts(window.innerWidth*.65, window.innerHeight*.5, 9); } });
+    $('#addMemoryBtn').addEventListener('click', () => openMemoryModal());
+    $('#addReasonBtn').addEventListener('click', addReason);
+    $('#resetReasonsBtn').addEventListener('click', () => { reasons = defaultReasons.map((text, i) => ({ id: uuid(), text })); writeStore(STORAGE.reasons, reasons); renderReasons(); toast('Volvieron las razones base.'); });
+    const snoopyMessage = ['Recordatorio: hay alguien que te ama muchísimo.', 'Ojalá pudiera abrazarte ahora mismo.', 'Eres una personita demasiado especial para mí.', 'Tu corazón merece un lugar seguro y bonito.', 'Psst… hoy también eres mi pensamiento favorito.']; let snoopyIndex = 0;
+    function showSnoopyMessage() { $('#snoopyNote').textContent = snoopyMessage[snoopyIndex++ % snoopyMessage.length]; sprinkleHearts(window.innerWidth*.68, window.innerHeight*.62, 6); }
+    $('#snoopyScene').addEventListener('click', showSnoopyMessage); $('#snoopyScene').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showSnoopyMessage(); } });
+    function openComfort() { $('#comfortBox').classList.add('open'); }
+    $('#comfortBox').addEventListener('click', openComfort); $('#comfortBox').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openComfort(); } });
+    $$('.feeling').forEach(btn => btn.addEventListener('click', () => { openComfort(); $$('.feeling').forEach(b => b.classList.remove('active')); btn.classList.add('active'); $('#comfortMessage').textContent = comfortMessages[btn.dataset.feeling]; }));
+    $('#loveReminderBtn').addEventListener('click', () => { openComfort(); $$('.feeling').forEach(b => b.classList.remove('active')); $('#comfortMessage').textContent = 'Te amo sin pedirte que seas otra persona, sin ponerte pruebas y sin exigirte que estés bien todo el tiempo. Puedes venir a mí tal como estás. ♡'; sprinkleHearts(window.innerWidth*.7, window.innerHeight*.58, 8); });
+    $('#wishForm').addEventListener('submit', e => { e.preventDefault(); const input = $('#wishText'); const text = input.value.trim(); if (!text) return; wishes.push({ id: uuid(), text, opened: false }); writeStore(STORAGE.wishes, wishes); input.value = ''; renderWishes(); toast('Tu deseo quedó guardado en un sobre.'); });
+    $('#surpriseBtn').addEventListener('click', () => { const el = $('#surpriseMessage'); el.textContent = surprisePool[Math.floor(Math.random() * surprisePool.length)]; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); sprinkleHearts(window.innerWidth/2, window.innerHeight*.68, 8); });
+    $('#secretBtn').addEventListener('click', () => { $('#secretLetter').classList.toggle('is-visible'); if ($('#secretLetter').classList.contains('is-visible')) sprinkleHearts(window.innerWidth/2, window.innerHeight*.68, 10); });
+    $('#backToStart').addEventListener('click', () => scrollToId('inicio'));
+    $('#musicBtn').addEventListener('click', toggleMusic); $('#volumeRange').addEventListener('input', e => { if (masterGain) masterGain.gain.value = Number(e.target.value); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    renderReasons(); renderMemories(); renderGarden(); renderWishes(); startCounter();
+  </script>
+</body>
+</html>
+
